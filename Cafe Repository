@@ -1,0 +1,19 @@
+package com.oop.oop;
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface CafeRepository extends JpaRepository<Cafe, Integer> {
+
+    // Custom query to find cafe's by location
+    List<Cafe> findByLocation(String location);
+    // Method to find a cafe by its name
+    Optional<Cafe> findByName(String name);
+
+    Optional<Cafe> findById(int cafeId);
+}
