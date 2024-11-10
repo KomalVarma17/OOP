@@ -1,0 +1,105 @@
+// Cafe Class
+
+package com.oop.oop;
+
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+public class Cafe {
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @Column(name = "cafe_id")  // Mapping the field cafeId to the cafe_id column in the table
+    private int cafeId;
+
+    @Column(name = "name", nullable = false, length = 100)  // name with varchar(100), not nullable
+    private String name;
+
+    @Column(name = "location", nullable = true, length = 255)  // location with varchar(255), nullable
+    private String location;
+
+    @Column(name = "contact_info", nullable = true, length = 100)  // contact_info with varchar(100), nullable
+    private String contactInfo;
+
+    @Column(name = "opening_hours", nullable = true, length = 50)  // opening_hours with varchar(50), nullable
+    private String openingHours;
+
+    @Column
+    private double rating;
+
+    @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MenuItem> menuItems = new ArrayList<>(); // MenuItems for the cafe
+
+    // Constructor
+    public Cafe(int cafeId, String name, String location, String openingHours, double rating, String contactInfo) {
+        this.cafeId = cafeId;
+        this.name = name;
+        this.location = location;
+        this.openingHours = openingHours;
+        this.rating = rating;
+        this.contactInfo = contactInfo;
+    }
+
+    public Cafe() {
+    }
+
+    // Getters and Setters
+
+    public int getCafeId() {
+        return cafeId;
+    }
+
+    public void setCafeId(int cafeId) {
+        this.cafeId = cafeId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getOpeningHours() {
+        return openingHours;
+    }
+
+    public void setOpeningHours(String openingHours) {
+        this.openingHours = openingHours;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public String getContactInfo() {
+        return contactInfo;
+    }
+
+    public void setContactInfo(String contactInfo) {
+        this.contactInfo = contactInfo;
+    }
+
+    public List<MenuItem> getMenuItems() {
+        return menuItems;
+    }
+
+    public void setMenuItems(List<MenuItem> menuItems) {
+        this.menuItems = menuItems;
+    }
+}
