@@ -1,0 +1,53 @@
+package com.oop.oop;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+@Controller
+public class MenuItemController {
+
+    @Autowired
+    private MenuItemService menuItemService;
+
+    @Autowired
+    private CafeService cafeService;
+
+    // Get the menu of a specific cafe by its id
+    @GetMapping("/cafe/{cafeId}/menu")
+    public String getMenu(@PathVariable int cafeId, Model model) {
+        // Check if the cafe exists
+        Cafe cafe = cafeService.getCafeById(cafeId);
+        if (cafe != null) {
+            // Fetch all menu items for the cafe
+            model.addAttribute("menuItems", menuItemService.getMenuForCafe(cafeId));
+            model.addAttribute("cafeId", cafeId);
+            model.addAttribute("cafeName", cafe.getName());  // Optional: You can add the cafe name for display
+            return "menu_list";  // View to display the list of menu items
+        } else {
+            // Redirect to the cafe list if the cafe doesn't exist
+            return "redirect:/cafes";
+        }
+    }
+
+
+    // Get the details of a specific menu item based on the cafeId and menuItemId
+    @GetMapping("/cafe/{cafeId}/menu/{itemId}")
+    public String getMenuItemDetails(@PathVariable int cafeId, @PathVariable int itemId, Model model) {
+        MenuItem menuItem = (MenuItem) menuItemService.getMenuForCafe(itemId);
+
+        // Check if the menuItem exists and belongs to the specified cafeId
+        if (menuItem != null && menuItem.getCafe().getCafeId() == cafeId) {
+            model.addAttribute("menuItem", menuItem);
+            return "menu_item_details";  // View to show details of a menu item
+        }
+
+        // If the menu item is not found or doesn't belong to the specified cafe, redirect to menu list
+        return "redirect:/cafe/" + cafeId + "/menu";
+    }
+
+}
+
