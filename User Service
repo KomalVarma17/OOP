@@ -1,0 +1,79 @@
+package com.oop.oop;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class Userservice {
+
+    private static final Logger logger = LoggerFactory.getLogger(Userservice.class);
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    public User createUser(User user) {
+        logger.info("Creating user with username: {}", user.getUsername());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User findUserById(int id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+    }
+
+    public User updateUser(int id, User userDetails) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+        user.setUsername(userDetails.getUsername());
+        user.setPhone_Number(userDetails.getPhone_Number());
+        user.setAge(userDetails.getAge());
+        user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+        return userRepository.save(user);
+    }
+
+    public User signUp(User user) {
+        Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
+        if (existingUser.isPresent()) {
+            throw new RuntimeException("User already exists with username: " + user.getUsername());
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        logger.info("User signed up with username: {}", user.getUsername());
+        return userRepository.save(user);
+    }
+
+    public boolean authenticate(String username, String password) {
+        Authentication authentication = new UsernamePasswordAuthenticationToken(username, password);
+        Authentication result = authenticationManager.authenticate(authentication);
+        SecurityContextHolder.getContext().setAuthentication(result);
+        return result.isAuthenticated();
+    }
+
+    public void deleteUser(int id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("User not found with ID: " + id);
+        }
+        userRepository.deleteById(id);
+        logger.info("User deleted with ID: {}", id);
+    }
+}
