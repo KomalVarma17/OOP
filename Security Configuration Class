@@ -1,0 +1,60 @@
+package com.oop.oop.config;
+
+import com.oop.oop.CustomUserDetailService;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class Securityconfig {
+
+    private final CustomUserDetailService customUserDetailService;
+
+    public Securityconfig(CustomUserDetailService customUserDetailService) {
+        this.customUserDetailService = customUserDetailService;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests(authz -> authz
+                        .requestMatchers("/signup", "/login", "/error").permitAll()  // Allow signup, login, and error pages without authentication
+                        .requestMatchers("/cafes/**", "/menu-items/**").hasAnyRole("USER", "ADMIN")  // Require USER or ADMIN role for cafe and menu-item pages
+                        .requestMatchers("/admin/**").hasRole("ADMIN")  // Admin-specific pages
+                        .anyRequest().authenticated()  // Require authentication for all other pages
+                )
+                .formLogin(form -> form
+                        .loginPage("/login.html")  // Custom login page
+                        .permitAll()  // Allow all to access login page
+                        .defaultSuccessUrl("/home", true)  // Redirect to home after successful login
+                )
+                .logout(logout -> logout
+                        .permitAll()  // Allow everyone to log out
+                        .logoutSuccessUrl("/login?logout=true")  // Redirect to login page after logout
+                );
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder
+                .userDetailsService(customUserDetailService)  // Use your custom user detail service
+                .passwordEncoder(passwordEncoder());
+
+        return authenticationManagerBuilder.build();
+    }
+}
