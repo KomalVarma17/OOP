@@ -1,0 +1,82 @@
+// MenuItem Class
+
+package com.oop.oop;
+
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+
+@Entity
+public class MenuItem {
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @Column(name = "item_id")
+    private int itemId;
+
+    @Column(name = "name", nullable = false, length = 50)
+    private String name;
+
+    // Use a floating-point type like double, no precision/scale
+    @Column
+    private Double cost;
+
+    @Column(name = "preparation_time", nullable = false)
+    private int preparationTime;
+
+    @ManyToOne
+    @JoinColumn(name = "cafe_id") // Join column for the relationship
+    private Cafe cafe;
+
+    // Constructor
+    public MenuItem(String name, Double cost, int preparationTime, Cafe cafe) {
+        this.name = name;
+        this.cost = cost;
+        this.preparationTime = preparationTime;
+        this.cafe = cafe;
+    }
+
+    // Default constructor
+    public MenuItem() {}
+
+    // Getters and Setters
+    public int getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(int itemId) {
+        this.itemId = itemId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Double getCost() {
+        return cost;
+    }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
+
+    public int getPreparationTime() {
+        return preparationTime;
+    }
+
+    public void setPreparationTime(int preparationTime) {
+        this.preparationTime = preparationTime;
+    }
+
+    public Cafe getCafe() {
+        return cafe;
+    }
+
+    public void setCafe(Cafe cafe) {
+        this.cafe = cafe;
+    }
+}
