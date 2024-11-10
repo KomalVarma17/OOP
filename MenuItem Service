@@ -1,0 +1,45 @@
+package com.oop.oop;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class MenuItemService {
+
+    @Autowired
+    private static MenuItemRepository menuItemRepository;
+
+    @Autowired
+    private static CafeRepository cafeRepository;
+
+    // Fetch all menu items (if required)
+    public List<MenuItem> getAllMenuItems() {
+        return menuItemRepository.findAll();
+    }
+
+    // Get menu items by cafe ID
+    public List<MenuItem> getMenuOfCafe(int cafeId) {
+        Optional<Cafe> cafe = cafeRepository.findById(cafeId);
+        return cafe.map(Cafe::getMenuItems).orElse(null); // Return the list of menu items or null if not found
+    }
+
+    // Get menu items based on cafe name
+    public List<MenuItem> getMenuByCafeName(String cafeName) {
+        Optional<Cafe> cafe = cafeRepository.findByName(cafeName);
+        return cafe.map(Cafe::getMenuItems).orElse(null); // Return the list of menu items or null if cafe not found
+    }
+
+    // Method to get the menu for a specific cafe based on its ID
+    public static List<MenuItem> getMenuForCafe(int cafeId) {
+        // Check if the cafe exists
+        if (menuItemRepository.findById(cafeId)) {
+            // Fetch the list of menu items for the given cafe ID
+            return menuItemRepository.findByCafe_CafeId(cafeId);
+        }
+        return null; // Return null if the cafe does not exist
+    }
+}
