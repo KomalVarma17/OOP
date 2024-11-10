@@ -1,0 +1,36 @@
+package com.oop.oop;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+@Controller
+public class CafeController {
+
+    @Autowired
+    private CafeService cafeService;
+
+    @GetMapping("/cafes")
+    public String showCafeList(Model model) {
+        // Get the list of all cafe
+        model.addAttribute("cafes", cafeService.getAllCafes());
+        return "cafe_list"; // Show the cafe list view
+    }
+
+    @GetMapping("/cafe/{id}")
+    public String showCafeDetails(@PathVariable int id, Model model) {
+        // Get the details of the selected cafe
+        Cafe cafe = cafeService.getCafeById(id);
+        if (cafe != null) {
+            model.addAttribute("cafe", cafe);
+            model.addAttribute("menu", MenuItemService.getMenuForCafe(id)); // Display the menu of the cafe
+            model.addAttribute("rating", cafe.getRating());
+            model.addAttribute("location", cafe.getLocation());
+            return "cafe_details"; // Show the detailed cafe view
+        }
+        return "redirect:/cafes"; // Redirect back to the cafe list if the cafe is not found
+    }
+}
