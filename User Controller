@@ -1,0 +1,59 @@
+package com.oop.oop;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
+@Controller
+public class UserController {
+
+    @Autowired
+    private Userservice userService;
+
+    @GetMapping("/")
+    public String showHomePage(Model model) {
+        return "home"; // The home.html view will have the links to /signup and /login.
+    }
+
+    @GetMapping("/signup")
+    public String showSignUpPage(Model model) {
+        return "signup"; // Returns the signup view, where users can enter their details.
+    }
+
+    @PostMapping("/signup")
+    public String signUpUser(@RequestParam("username") String username,
+                             @RequestParam("password") String password,
+                             @RequestParam("phone_number") String phoneNumber,
+                             @RequestParam("age") int age,
+                             @RequestParam("gender") String gender, // Gender received as String
+                             Model model) {
+        try {
+            User.Gender genderEnum = User.Gender.valueOf(gender.toUpperCase()); // Converts String to Gender enum
+            userService.signUp(new User(username, password, phoneNumber, age, genderEnum));
+            return "redirect:/login"; // Redirect to login page after successful signup
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", "Invalid gender value!");
+            return "signup"; // Stay on the signup page if the gender is invalid
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage()); // Handle other errors (e.g., username already taken)
+            return "signup"; // Stay on the signup page if an error occurs
+        }
+    }
+
+    @GetMapping("/login")  // This is the new controller method for handling login requests
+    public String showLoginPage(Model model) {
+        // Optionally, you can add a check here if the user is already authenticated
+        return "login"; // This should render the login page (login.html)
+    }
+
+    @RequestMapping("/logout")
+    public String logout(Model model) {
+        return "redirect:/login?logout=true"; // Redirect to login page after logout
+    }
+}
