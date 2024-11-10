@@ -1,0 +1,55 @@
+package com.oop.oop;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class CafeService {
+
+    @Autowired
+    private CafeRepository cafeRepository;
+
+    @Autowired
+    private MenuItemRepository menuItemRepository;
+
+    // Fetch all cafe's
+    public List<Cafe> getAllCafes() {
+        return cafeRepository.findAll();
+    }
+
+    // Fetch a cafe by ID
+    public Cafe getCafeById(int cafeId) {
+        Optional<Cafe> cafe = cafeRepository.findById(cafeId);
+        return cafe.orElse(null); // Return null if not found
+    }
+
+    // Fetch cafes by location
+    public List<Cafe> getCafesByLocation(String location) {
+        return cafeRepository.findByLocation(location);
+    }
+
+    // Save a new cafe
+    public Cafe saveCafe(Cafe cafe) {
+        return cafeRepository.save(cafe);
+    }
+
+    // Delete a cafe
+    public void deleteCafe(int cafeId) {
+        cafeRepository.deleteById(cafeId);
+    }
+
+    // Fetch the menu items of a cafe by cafe ID
+    public List<MenuItem> getMenuOfCafe(int cafeId) {
+        Optional<Cafe> cafe = cafeRepository.findById(cafeId);
+        return cafe.map(Cafe::getMenuItems).orElse(null); // Return the list of menu items or null if not found
+    }
+
+    // Get the rating of a cafe by cafe ID
+    public double getRatingOfCafe(int cafeId) {
+        Optional<Cafe> cafe = cafeRepository.findById(cafeId);
+        return cafe.map(Cafe::getRating).orElse(0.0); // Return the cafe rating or 0.0 if not found
+    }
+
+}
